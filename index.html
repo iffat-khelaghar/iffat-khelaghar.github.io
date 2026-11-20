@@ -255,6 +255,23 @@
       .prod .desc { font-size: 0.88rem; color: var(--muted); margin: 0 0 0.5rem; line-height: 1.55; }
       .btn-order { margin-top: auto; display: block; text-align: center; background: var(--brand); color: var(--brand-ink); text-decoration: none; font-weight: 600; padding: 0.55rem 0.8rem; border-radius: 10px; }
       .btn-order:hover { background: var(--brand-strong); }
+      .offer-strip { background: linear-gradient(90deg, #dc2626, #f97316); color: #fff; font-weight: 700; text-align: center; padding: 0.6rem 0.9rem; border-radius: 12px; margin: 0 0 1rem; font-size: 1rem; }
+      .btn-cart { margin-top: 0.5rem; display: block; width: 100%; text-align: center; background: #fff; color: var(--brand-strong); border: 1.5px solid var(--brand); font-weight: 600; padding: 0.5rem 0.8rem; border-radius: 10px; cursor: pointer; font-size: 0.95rem; }
+      .btn-cart.added { background: var(--brand); color: var(--brand-ink); }
+      .cart-fab { position: fixed; right: 1rem; bottom: 88px; z-index: 30; background: #dc2626; color: #fff; border: none; border-radius: 999px; padding: 0.7rem 1.05rem; font-weight: 700; font-size: 1rem; box-shadow: 0 4px 16px rgba(0,0,0,.3); cursor: pointer; }
+      .cart-fab .cnt { background: #fff; color: #dc2626; border-radius: 999px; padding: 0.05rem 0.45rem; margin-left: 0.35rem; }
+      .cart-panel { position: fixed; inset: 0; z-index: 40; background: rgba(0,0,0,.5); display: none; }
+      .cart-panel.open { display: block; }
+      .cart-box { position: absolute; left: 0; right: 0; bottom: 0; max-height: 82vh; overflow: auto; background: var(--surface); border-radius: 18px 18px 0 0; padding: 1rem 1.1rem 1.2rem; }
+      .cart-box h3 { margin: 0 0 0.6rem; }
+      .cart-item { display: flex; align-items: center; gap: 0.5rem; padding: 0.45rem 0; border-bottom: 1px solid var(--line); }
+      .cart-item .nm { flex: 1; font-size: 0.95rem; }
+      .cart-item .pr { font-weight: 700; white-space: nowrap; }
+      .qty-btn { width: 30px; height: 30px; border-radius: 8px; border: 1px solid var(--line); background: #fff; font-size: 1.05rem; cursor: pointer; }
+      .cart-total { display: flex; justify-content: space-between; font-weight: 800; font-size: 1.08rem; margin: 0.8rem 0; }
+      .cart-send { display: block; text-align: center; background: #25d366; color: #fff; font-weight: 700; padding: 0.75rem; border-radius: 12px; text-decoration: none; }
+      .cart-close { display: block; width: 100%; margin-top: 0.6rem; background: none; border: none; color: var(--muted); font-size: 0.95rem; cursor: pointer; padding: 0.4rem; }
+      .cart-empty { color: var(--muted); text-align: center; padding: 1rem 0; }
 </style>
   </head>
   <body>
@@ -329,10 +346,21 @@
       <section aria-labelledby="shop-h">
         <h2 id="shop-h">পণ্য ও দাম</h2>
         <p class="sec-sub">পছন্দের পণ্যে "অর্ডার করো" বাটনে চাপ দিলেই WhatsApp-এ সরাসরি অর্ডার পাঠাতে পারবেন। নতুন পণ্য নিয়মিত যোগ হচ্ছে — স্টক জানতে মেসেজ দিন।</p>
+        <div class="offer-strip">🔥 অফার চলছে! সব খেলার সামগ্রীতে ১০% থেকে ২০% পর্যন্ত ছাড় — কার্ডে ছাড়ের দামই দেওয়া আছে</div>
         <div class="chips" id="shop-chips"></div>
         <div class="shop-grid" id="shop-grid"></div>
       </section>
-      <script>
+      <button class="cart-fab" id="cart-fab" type="button">🛒 কার্ট<span class="cnt" id="cart-cnt">০</span></button>
+    <div class="cart-panel" id="cart-panel">
+      <div class="cart-box">
+        <h3>🛒 তোমার কার্ট</h3>
+        <div id="cart-items"></div>
+        <div class="cart-total"><span>সর্বমোট</span><span id="cart-total">৳ ০</span></div>
+        <a class="cart-send" id="cart-send" href="#" target="_blank" rel="noopener">WhatsApp-এ অর্ডার পাঠাও</a>
+        <button class="cart-close" id="cart-close" type="button">বন্ধ করো</button>
+      </div>
+    </div>
+    <script>
       // ===== পণ্যের তালিকা =====
       // নতুন পণ্য যোগ করতে নিচের তালিকায় একটা লাইন যোগ করলেই হবে।
       // price: দাম সংখ্যায় (যেমন 1250); দাম না দিলে null লিখুন — "দাম জানতে মেসেজ দিন" দেখাবে।
@@ -385,6 +413,7 @@
             '<p class="cat-label"></p>' +
             '<p class="price' + ((p.price === null || p.price === undefined) ? " ask" : "") + '"></p>' +
             '<a class="btn-order" target="_blank" rel="noopener">WhatsApp-এ অর্ডার করো</a>' +
+            '<button class="btn-cart" type="button">🛒 কার্টে যোগ করো</button>' +
             "</div>";
           card.querySelector("img").src = CATIMG[p.img] || "";
           card.querySelector("img").alt = p.name;
@@ -403,9 +432,49 @@
           }
           if (p.desc) { var dEl = document.createElement("p"); dEl.className = "desc"; dEl.textContent = p.desc; card.querySelector(".prod-body").insertBefore(dEl, card.querySelector(".btn-order")); }
           card.querySelector(".btn-order").href = "https://wa.me/" + WA_NUMBER + "?text=" + encodeURIComponent(msg);
+          var cartBtn = card.querySelector(".btn-cart");
+          if (!p.price) { cartBtn.style.display = "none"; }
+          cartBtn.addEventListener("click", function () {
+            CART[p.name] = (CART[p.name] || 0) + 1; saveCart();
+            cartBtn.textContent = "✓ কার্টে যোগ হয়েছে"; cartBtn.classList.add("added");
+            setTimeout(function () { cartBtn.textContent = "🛒 কার্টে যোগ করো"; cartBtn.classList.remove("added"); }, 1200);
+          });
           grid.appendChild(card);
         });
       }
+      var CART = {};
+      try { CART = JSON.parse(localStorage.getItem("iffat_cart") || "{}"); } catch (e) { CART = {}; }
+      function saveCart() { try { localStorage.setItem("iffat_cart", JSON.stringify(CART)); } catch (e) {} updateCartUI(); }
+      function findProd(name) { for (var i = 0; i < PRODUCTS.length; i++) { if (PRODUCTS[i].name === name) return PRODUCTS[i]; } return null; }
+      function updateCartUI() {
+        var cnt = 0; for (var k in CART) cnt += CART[k];
+        document.getElementById("cart-cnt").textContent = bnNum(cnt);
+        var box = document.getElementById("cart-items");
+        box.innerHTML = "";
+        var total = 0, names = Object.keys(CART);
+        if (!names.length) { box.innerHTML = '<p class="cart-empty">কার্ট খালি — পণ্যের কার্ড থেকে "কার্টে যোগ করো" চাপো</p>'; }
+        names.forEach(function (name) {
+          var p = findProd(name); if (!p) return;
+          var qty = CART[name]; total += (p.price || 0) * qty;
+          var row = document.createElement("div"); row.className = "cart-item";
+          row.innerHTML = '<span class="nm"></span><button class="qty-btn" type="button">−</button><b>' + bnNum(qty) + '</b><button class="qty-btn" type="button">+</button><span class="pr">৳ ' + bnNum((p.price || 0) * qty) + '</span>';
+          row.querySelector(".nm").textContent = name;
+          var btns = row.querySelectorAll(".qty-btn");
+          btns[0].addEventListener("click", function () { CART[name]--; if (CART[name] <= 0) delete CART[name]; saveCart(); });
+          btns[1].addEventListener("click", function () { CART[name]++; saveCart(); });
+          box.appendChild(row);
+        });
+        document.getElementById("cart-total").textContent = "৳ " + bnNum(total);
+        var lines = ["আসসালামু আলাইকুম, আমি এই পণ্যগুলো কিনতে চাই —"];
+        names.forEach(function (name) { var p = findProd(name); if (p) lines.push("• " + name + " × " + bnNum(CART[name]) + " = ৳" + bnNum((p.price || 0) * CART[name])); });
+        lines.push("সর্বমোট: ৳" + bnNum(total));
+        lines.push("— ইফফাত প্রিন্টস এন্ড খেলাঘর ওয়েবসাইট থেকে");
+        document.getElementById("cart-send").href = "https://wa.me/" + WA_NUMBER + "?text=" + encodeURIComponent(lines.join("\n"));
+      }
+      document.getElementById("cart-fab").addEventListener("click", function () { document.getElementById("cart-panel").classList.add("open"); });
+      document.getElementById("cart-close").addEventListener("click", function () { document.getElementById("cart-panel").classList.remove("open"); });
+      document.getElementById("cart-panel").addEventListener("click", function (e) { if (e.target === this) this.classList.remove("open"); });
+      updateCartUI();
       (function () {
         var cats = ["সব"];
         PRODUCTS.forEach(function (p) { if (cats.indexOf(p.cat) === -1) cats.push(p.cat); });

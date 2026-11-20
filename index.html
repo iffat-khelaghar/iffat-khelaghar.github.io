@@ -313,7 +313,7 @@
       .prod img, .prod h3 { cursor: pointer; }
       .prod-panel { position: fixed; inset: 0; z-index: 40; background: rgba(0,0,0,.5); display: none; }
       .prod-panel.open { display: block; }
-      .prod-box { position: absolute; left: 0; right: 0; bottom: 0; max-height: 88vh; overflow: auto; background: var(--surface); border-radius: 18px 18px 0 0; padding: 1rem 1.1rem 1.2rem; }
+      .prod-box { position: absolute; left: 0; right: 0; bottom: 0; max-width: 560px; margin: 0 auto; max-height: 88vh; overflow: auto; background: var(--surface); border-radius: 18px 18px 0 0; padding: 1rem 1.1rem 1.2rem; }
       .prod-box .big-img { width: 100%; border-radius: 12px; aspect-ratio: 4 / 3; object-fit: cover; }
       .prod-box h3 { margin: 0.7rem 0 0.2rem; font-size: 1.25rem; }
       .prod-box .price { font-weight: 700; color: var(--brand-strong); font-size: 1.15rem; margin: 0.25rem 0 0.45rem; }
@@ -611,7 +611,7 @@
         var cb = d.querySelector(".btn-cart");
         if (!p.price) { cb.style.display = "none"; }
         cb.addEventListener("click", function () { CART[p.name] = (CART[p.name] || 0) + 1; saveCart(); cb.textContent = "✓ কার্টে যোগ হয়েছে"; cb.classList.add("added"); setTimeout(function () { cb.textContent = "🛒 কার্টে যোগ করো"; cb.classList.remove("added"); }, 1200); });
-        if (p.video) { var v = document.createElement("video"); v.src = p.video; v.controls = true; v.playsInline = true; v.preload = "metadata"; v.style.cssText = "width:100%;border-radius:12px;margin-top:0.8rem"; d.appendChild(v); }
+        if (p.video) { var v = document.createElement("video"); v.src = p.video; v.controls = true; v.playsInline = true; v.preload = "metadata"; v.style.cssText = "display:block;width:100%;max-width:340px;margin:0.8rem auto 0;border-radius:12px"; d.appendChild(v); }
         var rel = document.getElementById("prod-related");
         rel.innerHTML = "";
         PRODUCTS.filter(function (x) { return x.cat === p.cat && x.name !== p.name; }).slice(0, 4).forEach(function (x) {

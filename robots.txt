@@ -1,0 +1,3 @@
+User-agent: *
+Allow: /
+Sitemap: https://iffat-khelaghar.github.io/sitemap.xml

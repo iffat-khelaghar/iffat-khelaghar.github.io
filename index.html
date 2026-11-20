@@ -281,6 +281,23 @@
       .topbar { position: sticky; top: 0; z-index: 25; background: var(--brand-strong); color: #fff; display: flex; align-items: center; gap: 0.7rem; padding: 0.55rem 0.9rem; box-shadow: 0 2px 10px rgba(0,0,0,.18); }
       .topbar-name { font-weight: 800; font-size: 0.95rem; white-space: nowrap; }
       .topbar input { flex: 1; min-width: 0; border: none; border-radius: 999px; padding: 0.48rem 0.95rem; font: inherit; font-size: 0.95rem; }
+      .ai-fab { position: fixed; left: 14px; bottom: 88px; z-index: 34; width: 56px; height: 56px; border: none; border-radius: 50%; background: var(--brand-strong); color: #fff; font-size: 25px; box-shadow: 0 6px 18px rgba(0,0,0,.28); cursor: pointer; }
+      .ai-panel { position: fixed; left: 12px; bottom: 152px; z-index: 46; width: min(92vw, 350px); height: min(62vh, 470px); background: var(--card); border: 1px solid var(--border); border-radius: 18px; box-shadow: 0 18px 44px rgba(0,0,0,.3); display: flex; flex-direction: column; overflow: hidden; }
+      .ai-panel[hidden] { display: none; }
+      .ai-head { background: var(--brand-strong); color: #fff; padding: 0.7rem 0.9rem; display: flex; justify-content: space-between; align-items: center; }
+      .ai-head strong { display: block; font-size: 1rem; }
+      .ai-head span { font-size: 0.78rem; opacity: .85; }
+      .ai-close { background: rgba(255,255,255,.18); border: none; color: #fff; width: 32px; height: 32px; border-radius: 50%; cursor: pointer; font-size: 15px; }
+      .ai-msgs { flex: 1; overflow-y: auto; padding: 0.8rem; display: flex; flex-direction: column; gap: 0.55rem; background: var(--bg); }
+      .ai-msg { max-width: 86%; padding: 0.55rem 0.8rem; border-radius: 14px; font-size: 0.94rem; line-height: 1.55; white-space: pre-line; }
+      .ai-msg.bot { background: var(--card); border: 1px solid var(--border); align-self: flex-start; border-bottom-left-radius: 4px; }
+      .ai-msg.me { background: var(--brand-strong); color: #fff; align-self: flex-end; border-bottom-right-radius: 4px; }
+      .ai-wa { display: inline-block; margin-top: 0.45rem; background: #22c55e; color: #fff; padding: 0.35rem 0.8rem; border-radius: 999px; font-weight: 700; font-size: 0.85rem; }
+      .ai-chips { display: flex; gap: 0.4rem; flex-wrap: wrap; padding: 0.5rem 0.7rem; border-top: 1px solid var(--border); background: var(--card); }
+      .ai-chips button { border: 1px solid var(--border); background: var(--bg); border-radius: 999px; padding: 0.3rem 0.7rem; font: inherit; font-size: 0.82rem; cursor: pointer; }
+      .ai-input-row { display: flex; gap: 0.45rem; padding: 0.6rem 0.7rem; border-top: 1px solid var(--border); background: var(--card); }
+      .ai-input-row input { flex: 1; min-width: 0; border: 1px solid var(--border); border-radius: 999px; padding: 0.5rem 0.85rem; font: inherit; font-size: 0.92rem; }
+      .ai-input-row button { border: none; background: var(--brand-strong); color: #fff; border-radius: 999px; padding: 0.5rem 1rem; font: inherit; font-weight: 700; cursor: pointer; }
       .cart-pay { text-align: center; color: var(--muted); font-size: 0.93rem; margin: 0.7rem 0 0; }
       .prod img, .prod h3 { cursor: pointer; }
       .prod-panel { position: fixed; inset: 0; z-index: 40; background: rgba(0,0,0,.5); display: none; }
@@ -398,6 +415,23 @@
         <button class="cart-close" id="prod-close" type="button">বন্ধ করো</button>
       </div>
     </div>
+    <!-- AI ASSISTANT -->
+    <button class="ai-fab" id="ai-fab" type="button" aria-label="AI সহকারীর সাথে চ্যাট">🤖</button>
+    <div class="ai-panel" id="ai-panel" hidden>
+      <div class="ai-head">
+        <div><strong>🤖 ইফফাত AI সহকারী</strong><span>সাধারণত সাথে সাথে উত্তর দেয়</span></div>
+        <button class="ai-close" id="ai-close" type="button" aria-label="বন্ধ করো">✕</button>
+      </div>
+      <div class="ai-msgs" id="ai-msgs"></div>
+      <div class="ai-chips" id="ai-chips">
+        <button type="button">পণ্যের দাম</button><button type="button">ডেলিভারি চার্জ?</button><button type="button">কীভাবে অর্ডার করবো?</button><button type="button">পেমেন্ট</button><button type="button">দোকানের ঠিকানা</button><button type="button">কম্পিউটার সার্ভিস</button>
+      </div>
+      <div class="ai-input-row">
+        <input id="ai-input" type="text" placeholder="এখানে লেখো...">
+        <button id="ai-send" type="button">পাঠাও</button>
+      </div>
+    </div>
+
     <button class="cart-fab" id="cart-fab" type="button">🛒 কার্ট<span class="cnt" id="cart-cnt">০</span></button>
     <div class="cart-panel" id="cart-panel">
       <div class="cart-box">
@@ -729,5 +763,52 @@
         WhatsApp
       </a>
     </nav>
+  <script>
+    (function () {
+      var WA = "https://wa.me/8801716627657?text=";
+      var fab = document.getElementById("ai-fab"), panel = document.getElementById("ai-panel"), msgs = document.getElementById("ai-msgs"), input = document.getElementById("ai-input");
+      var greeted = false;
+      function bnn(n) { return String(Math.round(n)).replace(/[0-9]/g, function (d) { return "০১২৩৪৫৬৭৮৯"[+d]; }).replace(/\B(?=(\d{3})+(?!\d))/g, ","); }
+      function addMsg(text, who) { var d = document.createElement("div"); d.className = "ai-msg " + who; d.textContent = text; msgs.appendChild(d); msgs.scrollTop = msgs.scrollHeight; return d; }
+      function addWa(el, waText, label) { var a = document.createElement("a"); a.className = "ai-wa"; a.target = "_blank"; a.rel = "noopener"; a.href = WA + encodeURIComponent(waText); a.textContent = label; el.appendChild(document.createElement("br")); el.appendChild(a); }
+      function priceLine(p) { var s = p.name + " — ৳" + bnn(p.price); if (p.was) s += " (আগে ৳" + bnn(p.was) + ", ছাড় চলছে)"; if (p.price == null) s = p.name + " — দাম জানতে মেসেজ দিন"; return s; }
+      function findProducts(q) {
+        return PRODUCTS.filter(function (p) {
+          var text = (p.name + " " + p.cat + " " + p.desc).toLowerCase();
+          if (text.indexOf(q) !== -1) return true;
+          var toks = (p.name + " " + p.cat).toLowerCase().split(/\s+/);
+          for (var i = 0; i < toks.length; i++) { var w = toks[i].replace(/[()]/g, ""); if (w.length >= 2 && q.indexOf(w) !== -1) return true; }
+          return false;
+        });
+      }
+      function answer(raw) {
+        var q = raw.trim().toLowerCase(); if (!q) return null;
+        if (/(হ্যালো|হেলো|সালাম|আসসালামু|hello|হাই|\bhi\b)/.test(q)) return { t: "আসসালামু আলাইকুম! আমি ইফফাত প্রিন্টস এন্ড খেলাঘরের AI সহকারী। পণ্যের দাম, ডেলিভারি, পেমেন্ট, অর্ডার বা কম্পিউটার সার্ভিস — জিজ্ঞেস করলেই উত্তর দিচ্ছি।" };
+        if (/(ডেলিভারি|delivery|কুরিয়ার|পৌঁছা)/.test(q)) return { t: "সারা দেশে হোম ডেলিভারি হয় — ডেলিভারি চার্জ মাত্র ৳১৪০। পেমেন্ট ক্যাশ অন ডেলিভারি, বিকাশ বা নগদে করা যায়।" };
+        if (/(পেমেন্ট|বিকাশ|নগদ|bkash|nagad|payment)/.test(q)) return { t: "পেমেন্টের উপায়: ক্যাশ অন ডেলিভারি, বিকাশ ও নগদ। অর্ডারের সময় যেটা সুবিধা সেটাই বেছে নিতে পারবে।" };
+        if (/(ঠিকানা|কোথায়|কোথায়|লোকেশন|address|location)/.test(q)) return { t: "দোকানের ঠিকানা: ইফফাত প্রিন্টস এন্ড খেলাঘর, গোমস্তাপুর থানারোড, গোমস্তাপুর, চাঁপাইনবাবগঞ্জ। মোবাইল: ০১৭১৬-৬২৭৬৫৭।" };
+        if (/(মোবাইল|নম্বর|ফোন|যোগাযোগ|contact|phone|কল)/.test(q)) return { t: "যোগাযোগ: ০১৭১৬-৬২৭৬৫৭ — কল করলেই পাবে, WhatsApp-ও এই নম্বরেই।", wa: "আসসালামু আলাইকুম! আমি দোকান সম্পর্কে জানতে চাই।", wl: "WhatsApp-এ কথা বলো" };
+        if (/(অর্ডার|order|কীভাবে কিন|কিভাবে কিন)/.test(q)) return { t: "অর্ডার করা সহজ: পছন্দের পণ্যে 'কার্টে যোগ করো' চাপ দিয়ে কার্ট থেকে WhatsApp-এ অর্ডার পাঠালেই হবে। চাইলে সরাসরি WhatsApp-এও অর্ডার করতে পারো।", wa: "আসসালামু আলাইকুম! আমি একটা পণ্য অর্ডার করতে চাই।", wl: "WhatsApp-এ অর্ডার করো" };
+        if (/(ছাড়|অফার|discount|offer)/.test(q)) return { t: "এখন অফার চলছে! অনেক খেলার সামগ্রীতে ১০% থেকে ২০% পর্যন্ত ছাড় — পণ্যের কার্ডেই কাটা দামসহ দেখা যাচ্ছে।" };
+        if (/(কম্পিউটার|সার্ভিস|প্রিন্ট|ফটোকপি|আবেদন|সিভি|টাইপিং|ল্যামিনেশন|service|print|ছবি)/.test(q)) return { t: "কম্পিউটার সার্ভিসে পাবে: প্রিন্ট ও ফটোকপি, অনলাইন আবেদন (চাকরি/ভর্তি/পাসপোর্ট), সিভি তৈরি, পাসপোর্ট সাইজ ছবি, টাইপিং, ল্যামিনেশন, ইমেইল ও ইন্টারনেট সার্ভিস। প্রতিটি কাজে মানি রসিদ দেওয়া হয়।", wa: "আসসালামু আলাইকুম! আমি একটা কম্পিউটার সার্ভিস নিতে চাই।", wl: "WhatsApp-এ জিজ্ঞেস করো" };
+        var hits = findProducts(q);
+        if (hits.length === 1) { var p = hits[0]; var extra = p.price != null ? { t: priceLine(p) + "\n" + p.desc, wa: "আসসালামু আলাইকুম! আমি '" + p.name + "' (দাম ৳" + bnn(p.price) + ") কিনতে চাই।", wl: "WhatsApp-এ অর্ডার করো" } : { t: priceLine(p) + "\n" + p.desc }; return extra; }
+        if (hits.length > 1) return { t: "এই পণ্যগুলো পাওয়া যাচ্ছে:\n" + hits.slice(0, 5).map(priceLine).join("\n") + "\nকোনটা লাগবে, নামটা লিখলেই বিস্তারিত দিচ্ছি।" };
+        if (/(দাম|কত|price|প্রাইস)/.test(q)) return { t: "কোন পণ্যের দাম জানতে চাও? নাম লিখলেই বলে দিচ্ছি — যেমন: র‍্যাকেট, জার্সি, শাটল কক, ফুটবল, জুতা।" };
+        return { t: "এটা আমি ঠিক বলতে পারছি না — দোকানদারকে সরাসরি WhatsApp-এ জিজ্ঞেস করলেই উত্তর পেয়ে যাবে। অথবা পণ্যের নাম লিখে দাম জিজ্ঞেস করো।", wa: "আসসালামু আলাইকুম! আমার একটা প্রশ্ন আছে।", wl: "WhatsApp-এ জিজ্ঞেস করো" };
+      }
+      function send(text) {
+        var v = (text != null ? text : input.value).trim(); if (!v) return;
+        addMsg(v, "me"); input.value = "";
+        var typing = addMsg("লিখছি...", "bot");
+        setTimeout(function () { var r = answer(v); typing.remove(); if (r) { var m = addMsg(r.t, "bot"); if (r.wa) addWa(m, r.wa, r.wl || "WhatsApp"); } }, 550);
+      }
+      fab.addEventListener("click", function () { panel.hidden = false; fab.style.display = "none"; if (!greeted) { greeted = true; addMsg("আসসালামু আলাইকুম! আমি ইফফাত প্রিন্টস এন্ড খেলাঘরের AI সহকারী। পণ্যের দাম, ডেলিভারি, পেমেন্ট বা অর্ডার নিয়ে জিজ্ঞেস করো — সাথে সাথে উত্তর দিচ্ছি। নিচের বাটনগুলোও চাপ দিতে পারো।", "bot"); } input.focus(); });
+      document.getElementById("ai-close").addEventListener("click", function () { panel.hidden = true; fab.style.display = ""; });
+      document.getElementById("ai-send").addEventListener("click", function () { send(); });
+      input.addEventListener("keydown", function (e) { if (e.key === "Enter") send(); });
+      document.getElementById("ai-chips").addEventListener("click", function (e) { if (e.target.tagName === "BUTTON") send(e.target.textContent); });
+    })();
+  </script>
   </body>
 </html>

@@ -249,7 +249,9 @@
       .prod { position: relative; }
       .prod .price .was { text-decoration: line-through; color: var(--muted); font-weight: 400; font-size: 0.95rem; }
       .prod .price .off { background: #dc2626; color: #fff; font-size: 0.8rem; font-weight: 700; padding: 0.12rem 0.5rem; border-radius: 999px; margin-left: 0.4rem; vertical-align: middle; }
-      .disc-badge { position: absolute; top: 0.6rem; left: 0.6rem; background: #dc2626; color: #fff; font-weight: 700; font-size: 0.82rem; padding: 0.22rem 0.55rem; border-radius: 999px; box-shadow: 0 2px 8px rgba(0,0,0,.25); z-index: 2; }
+      .disc-badge { position: absolute; top: 0; right: 0; width: 76px; height: 76px; z-index: 2; pointer-events: none; }
+      .disc-badge::before { content: ""; position: absolute; inset: 0; background: #e4022b; clip-path: polygon(0 0, 100% 0, 100% 100%); }
+      .disc-badge b { position: absolute; top: 17px; right: 5px; transform: rotate(45deg); color: #fff; font-size: 0.98rem; font-weight: 800; }
       .prod .desc { font-size: 0.88rem; color: var(--muted); margin: 0 0 0.5rem; line-height: 1.55; }
       .btn-order { margin-top: auto; display: block; text-align: center; background: var(--brand); color: var(--brand-ink); text-decoration: none; font-weight: 600; padding: 0.55rem 0.8rem; border-radius: 10px; }
       .btn-order:hover { background: var(--brand-strong); }
@@ -394,7 +396,7 @@
             priceEl.innerHTML = '<span class="was">৳ ' + bnNum(p.was) + '</span> ৳ ' + bnNum(p.price) + '<span class="off">−' + bnNum(off) + '% ছাড়</span>';
             var badge = document.createElement("span");
             badge.className = "disc-badge";
-            badge.textContent = "−" + bnNum(off) + "% ছাড়";
+            badge.innerHTML = "<b>" + bnNum(off) + "%</b>";
             card.appendChild(badge);
           } else {
             priceEl.textContent = priceTxt;

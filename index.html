@@ -278,6 +278,9 @@
       .shop-tools select { padding: 0.6rem 0.6rem; border: 1.5px solid var(--line); border-radius: 10px; font-size: 0.95rem; background: var(--surface); color: inherit; font: inherit; }
       .cart-row { display: flex; justify-content: space-between; margin-top: 0.55rem; color: var(--muted); font-size: 0.97rem; }
       .pay-strip { text-align: center; font-weight: 600; color: var(--muted); margin: 0 0 1rem; font-size: 0.97rem; }
+      .topbar { position: sticky; top: 0; z-index: 25; background: var(--brand-strong); color: #fff; display: flex; align-items: center; gap: 0.7rem; padding: 0.55rem 0.9rem; box-shadow: 0 2px 10px rgba(0,0,0,.18); }
+      .topbar-name { font-weight: 800; font-size: 0.95rem; white-space: nowrap; }
+      .topbar input { flex: 1; min-width: 0; border: none; border-radius: 999px; padding: 0.48rem 0.95rem; font: inherit; font-size: 0.95rem; }
       .cart-pay { text-align: center; color: var(--muted); font-size: 0.93rem; margin: 0.7rem 0 0; }
       .prod img, .prod h3 { cursor: pointer; }
       .prod-panel { position: fixed; inset: 0; z-index: 40; background: rgba(0,0,0,.5); display: none; }
@@ -295,6 +298,10 @@
 </style>
   </head>
   <body>
+    <div class="topbar">
+      <span class="topbar-name">ইফফাত প্রিন্টস এন্ড খেলাঘর</span>
+      <input id="shop-search-top" type="search" placeholder="🔍 পণ্য খুঁজো...">
+    </div>
     <!-- ===================== HERO ===================== -->
     <header class="hero">
       <div class="wrap">
@@ -334,6 +341,25 @@
 
     <main class="wrap">
       <!-- ===================== CATEGORIES ===================== -->
+      <section aria-labelledby="shop-h">
+        <h2 id="shop-h">পণ্য ও দাম</h2>
+        <p class="sec-sub">পছন্দের পণ্যে "অর্ডার করো" বাটনে চাপ দিলেই WhatsApp-এ সরাসরি অর্ডার পাঠাতে পারবেন। নতুন পণ্য নিয়মিত যোগ হচ্ছে — স্টক জানতে মেসেজ দিন।</p>
+        <div class="offer-strip">🔥 অফার চলছে! সব খেলার সামগ্রীতে ১০% থেকে ২০% পর্যন্ত ছাড় — কার্ডে ছাড়ের দামই দেওয়া আছে</div>
+        <div class="delivery-strip">🚚 সারা দেশে হোম ডেলিভারি — ডেলিভারি চার্জ মাত্র ৳১৪০</div>
+        <div class="pay-strip">💳 পেমেন্ট: ক্যাশ অন ডেলিভারি, বিকাশ ও নগদ</div>
+        <div class="shop-tools">
+          <input id="shop-search" type="search" placeholder="🔍 পণ্য খুঁজো — র‍্যাকেট, জার্সি, বল...">
+          <select id="shop-sort">
+            <option value="">সাজাও: যেমন আছে</option>
+            <option value="low">দাম: কম → বেশি</option>
+            <option value="high">দাম: বেশি → কম</option>
+            <option value="off">ছাড়: বেশি → কম</option>
+          </select>
+        </div>
+        <div class="chips" id="shop-chips"></div>
+        <div class="shop-grid" id="shop-grid"></div>
+      </section>
+
       <section aria-labelledby="cat-h">
         <h2 id="cat-h">খেলার সামগ্রীর ক্যাটাগরি</h2>
         <p class="sec-sub">যে খেলারই প্রয়োজন হোক, পণ্য মিলবে এখানে। কোনো পণ্যের স্টক বা দাম জানতে কল করুন অথবা WhatsApp-এ মেসেজ দিন।</p>
@@ -363,24 +389,7 @@
       </section>
 
             <!-- ===================== SHOP / PRODUCTS ===================== -->
-      <section aria-labelledby="shop-h">
-        <h2 id="shop-h">পণ্য ও দাম</h2>
-        <p class="sec-sub">পছন্দের পণ্যে "অর্ডার করো" বাটনে চাপ দিলেই WhatsApp-এ সরাসরি অর্ডার পাঠাতে পারবেন। নতুন পণ্য নিয়মিত যোগ হচ্ছে — স্টক জানতে মেসেজ দিন।</p>
-        <div class="offer-strip">🔥 অফার চলছে! সব খেলার সামগ্রীতে ১০% থেকে ২০% পর্যন্ত ছাড় — কার্ডে ছাড়ের দামই দেওয়া আছে</div>
-        <div class="delivery-strip">🚚 সারা দেশে হোম ডেলিভারি — ডেলিভারি চার্জ মাত্র ৳১৪০</div>
-        <div class="pay-strip">💳 পেমেন্ট: ক্যাশ অন ডেলিভারি, বিকাশ ও নগদ</div>
-        <div class="shop-tools">
-          <input id="shop-search" type="search" placeholder="🔍 পণ্য খুঁজো — র‍্যাকেট, জার্সি, বল...">
-          <select id="shop-sort">
-            <option value="">সাজাও: যেমন আছে</option>
-            <option value="low">দাম: কম → বেশি</option>
-            <option value="high">দাম: বেশি → কম</option>
-            <option value="off">ছাড়: বেশি → কম</option>
-          </select>
-        </div>
-        <div class="chips" id="shop-chips"></div>
-        <div class="shop-grid" id="shop-grid"></div>
-      </section>
+
       <div class="prod-panel" id="prod-panel">
       <div class="prod-box">
         <div id="prod-detail"></div>
@@ -574,7 +583,8 @@
       document.getElementById("cart-fab").addEventListener("click", function () { document.getElementById("cart-panel").classList.add("open"); });
       document.getElementById("cart-close").addEventListener("click", function () { document.getElementById("cart-panel").classList.remove("open"); });
       document.getElementById("cart-panel").addEventListener("click", function (e) { if (e.target === this) this.classList.remove("open"); });
-      document.getElementById("shop-search").addEventListener("input", function () { SEARCH_Q = this.value.trim().toLowerCase(); var act = document.querySelector("#shop-chips .chip.active"); if (act) act.click(); });
+      document.getElementById("shop-search").addEventListener("input", function () { SEARCH_Q = this.value.trim().toLowerCase(); document.getElementById("shop-search-top").value = this.value; var act = document.querySelector("#shop-chips .chip.active"); if (act) act.click(); });
+      document.getElementById("shop-search-top").addEventListener("input", function () { SEARCH_Q = this.value.trim().toLowerCase(); document.getElementById("shop-search").value = this.value; var act = document.querySelector("#shop-chips .chip.active"); if (act) act.click(); if (this.value.trim().length === 1) { document.getElementById("shop-h").scrollIntoView({ behavior: "smooth" }); } });
       document.getElementById("shop-sort").addEventListener("change", function () { SORT_MODE = this.value; var act = document.querySelector("#shop-chips .chip.active"); if (act) act.click(); });
       updateCartUI();
       (function () {

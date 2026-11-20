@@ -272,6 +272,11 @@
       .cart-send { display: block; text-align: center; background: #25d366; color: #fff; font-weight: 700; padding: 0.75rem; border-radius: 12px; text-decoration: none; }
       .cart-close { display: block; width: 100%; margin-top: 0.6rem; background: none; border: none; color: var(--muted); font-size: 0.95rem; cursor: pointer; padding: 0.4rem; }
       .cart-empty { color: var(--muted); text-align: center; padding: 1rem 0; }
+      .delivery-strip { text-align: center; font-weight: 700; color: var(--brand-strong); margin: 0 0 1rem; font-size: 1rem; }
+      .shop-tools { display: flex; gap: 0.6rem; margin: 0 0 0.9rem; flex-wrap: wrap; }
+      .shop-tools input { flex: 1 1 190px; padding: 0.6rem 0.8rem; border: 1.5px solid var(--line); border-radius: 10px; font-size: 0.98rem; background: var(--surface); color: inherit; font: inherit; }
+      .shop-tools select { padding: 0.6rem 0.6rem; border: 1.5px solid var(--line); border-radius: 10px; font-size: 0.95rem; background: var(--surface); color: inherit; font: inherit; }
+      .cart-row { display: flex; justify-content: space-between; margin-top: 0.55rem; color: var(--muted); font-size: 0.97rem; }
 </style>
   </head>
   <body>
@@ -347,6 +352,16 @@
         <h2 id="shop-h">পণ্য ও দাম</h2>
         <p class="sec-sub">পছন্দের পণ্যে "অর্ডার করো" বাটনে চাপ দিলেই WhatsApp-এ সরাসরি অর্ডার পাঠাতে পারবেন। নতুন পণ্য নিয়মিত যোগ হচ্ছে — স্টক জানতে মেসেজ দিন।</p>
         <div class="offer-strip">🔥 অফার চলছে! সব খেলার সামগ্রীতে ১০% থেকে ২০% পর্যন্ত ছাড় — কার্ডে ছাড়ের দামই দেওয়া আছে</div>
+        <div class="delivery-strip">🚚 সারা দেশে হোম ডেলিভারি — ডেলিভারি চার্জ মাত্র ৳১৪০</div>
+        <div class="shop-tools">
+          <input id="shop-search" type="search" placeholder="🔍 পণ্য খুঁজো — র‍্যাকেট, জার্সি, বল...">
+          <select id="shop-sort">
+            <option value="">সাজাও: যেমন আছে</option>
+            <option value="low">দাম: কম → বেশি</option>
+            <option value="high">দাম: বেশি → কম</option>
+            <option value="off">ছাড়: বেশি → কম</option>
+          </select>
+        </div>
         <div class="chips" id="shop-chips"></div>
         <div class="shop-grid" id="shop-grid"></div>
       </section>
@@ -355,6 +370,8 @@
       <div class="cart-box">
         <h3>🛒 তোমার কার্ট</h3>
         <div id="cart-items"></div>
+        <div class="cart-row"><span>পণ্যের দাম</span><span id="cart-sub">৳ ০</span></div>
+        <div class="cart-row"><span>ডেলিভারি চার্জ (সারা দেশে)</span><span id="cart-del">৳ ০</span></div>
         <div class="cart-total"><span>সর্বমোট</span><span id="cart-total">৳ ০</span></div>
         <a class="cart-send" id="cart-send" href="#" target="_blank" rel="noopener">WhatsApp-এ অর্ডার পাঠাও</a>
         <button class="cart-close" id="cart-close" type="button">বন্ধ করো</button>
@@ -398,8 +415,16 @@
       function renderShop(filter) {
         var grid = document.getElementById("shop-grid");
         grid.innerHTML = "";
-        PRODUCTS.forEach(function (p) {
-          if (filter && filter !== "সব" && p.cat !== filter) return;
+        var list = PRODUCTS.filter(function (p) {
+          if (filter && filter !== "সব" && p.cat !== filter) return false;
+          if (SEARCH_Q && (p.name + " " + p.cat + " " + (p.desc || "")).toLowerCase().indexOf(SEARCH_Q) === -1) return false;
+          return true;
+        });
+        if (SORT_MODE === "low") list.sort(function (a, b) { return (a.price || 0) - (b.price || 0); });
+        if (SORT_MODE === "high") list.sort(function (a, b) { return (b.price || 0) - (a.price || 0); });
+        if (SORT_MODE === "off") list.sort(function (a, b) { return ((b.was ? 1 - b.price / b.was : 0) - (a.was ? 1 - a.price / a.was : 0)); });
+        if (!list.length) { grid.innerHTML = '<p class="cart-empty">দুঃখিত, এই নামে কোনো পণ্য পাওয়া যায়নি</p>'; }
+        list.forEach(function (p) {
           var priceTxt = (p.price === null || p.price === undefined) ? "দাম জানতে মেসেজ দিন" : "৳ " + bnNum(p.price);
           var msg = "আসসালামু আলাইকুম, আমি \"" + p.name + "\" পণ্যটি কিনতে চাই।" +
             ((p.price === null || p.price === undefined) ? " দামটা জানাবেন?" : " দাম: ৳" + bnNum(p.price) + ((p.was) ? " (অফার প্রাইস, নিয়মিত দাম ৳" + bnNum(p.was) + ")" : "")) +
@@ -442,6 +467,9 @@
           grid.appendChild(card);
         });
       }
+      var DELIVERY_CHARGE = 140;
+      var SEARCH_Q = "";
+      var SORT_MODE = "";
       var CART = {};
       try { CART = JSON.parse(localStorage.getItem("iffat_cart") || "{}"); } catch (e) { CART = {}; }
       function saveCart() { try { localStorage.setItem("iffat_cart", JSON.stringify(CART)); } catch (e) {} updateCartUI(); }
@@ -464,16 +492,22 @@
           btns[1].addEventListener("click", function () { CART[name]++; saveCart(); });
           box.appendChild(row);
         });
-        document.getElementById("cart-total").textContent = "৳ " + bnNum(total);
+        var grand = total + (names.length ? DELIVERY_CHARGE : 0);
+        document.getElementById("cart-sub").textContent = "৳ " + bnNum(total);
+        document.getElementById("cart-del").textContent = "৳ " + bnNum(names.length ? DELIVERY_CHARGE : 0);
+        document.getElementById("cart-total").textContent = "৳ " + bnNum(grand);
         var lines = ["আসসালামু আলাইকুম, আমি এই পণ্যগুলো কিনতে চাই —"];
         names.forEach(function (name) { var p = findProd(name); if (p) lines.push("• " + name + " × " + bnNum(CART[name]) + " = ৳" + bnNum((p.price || 0) * CART[name])); });
-        lines.push("সর্বমোট: ৳" + bnNum(total));
+        if (names.length) { lines.push("পণ্যের দাম: ৳" + bnNum(total)); lines.push("ডেলিভারি চার্জ: ৳" + bnNum(DELIVERY_CHARGE)); }
+        lines.push("সর্বমোট: ৳" + bnNum(grand));
         lines.push("— ইফফাত প্রিন্টস এন্ড খেলাঘর ওয়েবসাইট থেকে");
         document.getElementById("cart-send").href = "https://wa.me/" + WA_NUMBER + "?text=" + encodeURIComponent(lines.join("\n"));
       }
       document.getElementById("cart-fab").addEventListener("click", function () { document.getElementById("cart-panel").classList.add("open"); });
       document.getElementById("cart-close").addEventListener("click", function () { document.getElementById("cart-panel").classList.remove("open"); });
       document.getElementById("cart-panel").addEventListener("click", function (e) { if (e.target === this) this.classList.remove("open"); });
+      document.getElementById("shop-search").addEventListener("input", function () { SEARCH_Q = this.value.trim().toLowerCase(); var act = document.querySelector("#shop-chips .chip.active"); if (act) act.click(); });
+      document.getElementById("shop-sort").addEventListener("change", function () { SORT_MODE = this.value; var act = document.querySelector("#shop-chips .chip.active"); if (act) act.click(); });
       updateCartUI();
       (function () {
         var cats = ["সব"];

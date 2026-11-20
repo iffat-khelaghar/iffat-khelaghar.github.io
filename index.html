@@ -312,6 +312,7 @@
       .cart-form { display: grid; gap: 0.5rem; margin: 0.85rem 0 0.3rem; }
       .cart-form input { font: inherit; padding: 0.55rem 0.7rem; border: 1px solid var(--line); border-radius: 10px; background: var(--surface); color: var(--ink); width: 100%; box-sizing: border-box; }
       .stock-sm { color: #1e7d32; font-weight: 600; font-size: 0.9rem; margin: 0.2rem 0 0; }
+      .stock-sm.out, .prod-box .stock.out { color: #c62828; }
       .prod-box .stock { color: #1e7d32; font-weight: 700; margin: 0.25rem 0 0; }
       .sizes { display: flex; flex-wrap: wrap; gap: 0.45rem; margin: 0.6rem 0 0.2rem; align-items: center; }
       .sizes .sz-label { font-weight: 600; margin-right: 0.15rem; }
@@ -505,10 +506,10 @@
         { name: "Yonex Mavis 10 শাটল কক (Original)", cat: "ব্যাডমিন্টন", price: 155, img: "mavis10", desc: "Yonex-এর অরিজিনাল নাইলন শাটল কক — টেকসই, প্র্যাকটিস ও খেলার জন্য উপযোগী। দাম প্রতি পিসের; ১ বক্স (৬ পিস) = ৳৯৩০।" },
         { name: "Golden Wing G10 শাটল কক (Original)", cat: "ব্যাডমিন্টন", price: 55, img: "g10", desc: "Golden Wing-এর অরিজিনাল নাইলন শাটল কক — টেকসই ও জনপ্রিয়। দাম প্রতি পিসের; ১ বক্স = ৳৫৫০।" },
         { name: "স্পোর্টস অ্যাক্সেসরিজ", cat: "অ্যাক্সেসরিজ", price: 300, was: 345, img: "accessories" },
-        { name: "ক্রিকেট ব্যাট", cat: "ক্রিকেট", price: 1250, was: 1390, img: "cricket" },
+        { name: "ক্রিকেট ব্যাট", cat: "ক্রিকেট", price: 1250, was: 1390, img: "cricket", stock: false },
         { name: "ক্রিকেট বল", cat: "ক্রিকেট", price: 350, was: 440, img: "cricket" },
         { name: "ফুটবল", cat: "ফুটবল", price: 850, was: 980, img: "football" },
-        { name: "স্পোর্টস জুতা", cat: "জুতা", price: 1450, was: 1700, img: "shoes", sizes: ["৩৯", "৪০", "৪১", "৪২", "৪৩", "৪৪"] }
+        { name: "স্পোর্টস জুতা", cat: "জুতা", price: 1450, was: 1700, img: "shoes", sizes: ["৩৯", "৪০", "৪১", "৪২", "৪৩", "৪৪"], stock: false }
       ];
       var WA_NUMBER = "8801716627657";
       function bnNum(n) {
@@ -539,7 +540,7 @@
             "<h3></h3>" +
             '<p class="cat-label"></p>' +
             '<p class="price' + ((p.price === null || p.price === undefined) ? " ask" : "") + '"></p>' +
-            '<p class="stock-sm">✓ স্টকে আছে</p>' +
+            '<p class="stock-sm' + (p.stock === false ? " out" : "") + '">' + (p.stock === false ? "✗ স্টকে নেই" : "✓ স্টকে আছে") + '</p>' +
             '<a class="btn-order" target="_blank" rel="noopener">WhatsApp-এ অর্ডার করো</a>' +
             '<button class="btn-cart" type="button">🛒 কার্টে যোগ করো</button>' +
             "</div>";
@@ -619,8 +620,8 @@
       }
       function openProduct(p) {
         var d = document.getElementById("prod-detail");
-        var msg = "আসসালামু আলাইকুম, আমি \"" + p.name + "\" পণ্যটি কিনতে চাই।" + (!p.price ? " দামটা জানাবেন?" : " দাম: ৳" + bnNum(p.price) + (p.was ? " (অফার প্রাইস, নিয়মিত দাম ৳" + bnNum(p.was) + ")" : "")) + " — ইফফাত প্রিন্টস এন্ড খেলাঘর ওয়েবসাইট থেকে";
-        d.innerHTML = '<img class="big-img" alt=""><h3></h3><p class="cat-label"></p><p class="price"></p><p class="stock">✓ স্টকে আছে</p><div class="sizes"></div><p class="desc"></p>' +
+        var msg = p.stock === false ? "আসসালামু আলাইকুম, \"" + p.name + "\" পণ্যটা এখন স্টকে নেই — কবে আসবে বা অর্ডার করা যাবে কিনা জানাবেন? — ইফফাত প্রিন্টস এন্ড খেলাঘর ওয়েবসাইট থেকে" : "আসসালামু আলাইকুম, আমি \"" + p.name + "\" পণ্যটি কিনতে চাই।" + (!p.price ? " দামটা জানাবেন?" : " দাম: ৳" + bnNum(p.price) + (p.was ? " (অফার প্রাইস, নিয়মিত দাম ৳" + bnNum(p.was) + ")" : "")) + " — ইফফাত প্রিন্টস এন্ড খেলাঘর ওয়েবসাইট থেকে";
+        d.innerHTML = '<img class="big-img" alt=""><h3></h3><p class="cat-label"></p><p class="price"></p><p class="stock"></p><div class="sizes"></div><p class="desc"></p>' +
           '<a class="btn-order" target="_blank" rel="noopener">WhatsApp-এ অর্ডার করো</a>' +
           '<button class="btn-cart" type="button">🛒 কার্টে যোগ করো</button>';
         d.querySelector("img").src = CATIMG[p.img] || "";
@@ -628,6 +629,8 @@
         d.querySelector("h3").textContent = p.name;
         d.querySelector(".cat-label").textContent = p.cat;
         d.querySelector(".price").innerHTML = priceHTML(p);
+        var stEl = d.querySelector(".stock");
+        if (p.stock === false) { stEl.textContent = "✗ স্টকে নেই"; stEl.classList.add("out"); } else { stEl.textContent = "✓ স্টকে আছে"; }
         d.querySelector(".desc").textContent = p.desc || "";
         d.querySelector(".btn-order").href = "https://wa.me/" + WA_NUMBER + "?text=" + encodeURIComponent(msg);
         var szBox = d.querySelector(".sizes");
@@ -642,7 +645,8 @@
           d.querySelector(".btn-order").href = "https://wa.me/" + WA_NUMBER + "?text=" + encodeURIComponent(msg.replace("পণ্যটি কিনতে চাই।", "পণ্যটি কিনতে চাই। সাইজ: " + d._selSize + "।"));
         }
         var cb = d.querySelector(".btn-cart");
-        if (!p.price) { cb.style.display = "none"; }
+        if (!p.price || p.stock === false) { cb.style.display = "none"; }
+        if (p.stock === false) { d.querySelector(".btn-order").textContent = "WhatsApp-এ জিজ্ঞেস করো"; }
         cb.addEventListener("click", function () { var key = d._selSize ? p.name + " (সাইজ: " + d._selSize + ")" : p.name; CART[key] = (CART[key] || 0) + 1; saveCart(); cb.textContent = "✓ কার্টে যোগ হয়েছে"; cb.classList.add("added"); setTimeout(function () { cb.textContent = "🛒 কার্টে যোগ করো"; cb.classList.remove("added"); }, 1200); });
         if (p.video) { var v = document.createElement("video"); v.src = p.video; v.controls = true; v.playsInline = true; v.preload = "metadata"; v.style.cssText = "display:block;width:100%;max-width:340px;margin:0.8rem auto 0;border-radius:12px"; d.appendChild(v); }
         var rel = document.getElementById("prod-related");
@@ -859,7 +863,7 @@
       function bnn(n) { return String(Math.round(n)).replace(/[0-9]/g, function (d) { return "০১২৩৪৫৬৭৮৯"[+d]; }).replace(/\B(?=(\d{3})+(?!\d))/g, ","); }
       function addMsg(text, who) { var d = document.createElement("div"); d.className = "ai-msg " + who; d.textContent = text; msgs.appendChild(d); msgs.scrollTop = msgs.scrollHeight; return d; }
       function addWa(el, waText, label) { var a = document.createElement("a"); a.className = "ai-wa"; a.target = "_blank"; a.rel = "noopener"; a.href = WA + encodeURIComponent(waText); a.textContent = label; el.appendChild(document.createElement("br")); el.appendChild(a); }
-      function priceLine(p) { var s = p.name + " — ৳" + bnn(p.price); if (p.was) s += " (আগে ৳" + bnn(p.was) + ", ছাড় চলছে)"; if (p.price == null) s = p.name + " — দাম জানতে মেসেজ দিন"; return s; }
+      function priceLine(p) { var s = p.name + " — ৳" + bnn(p.price); if (p.was) s += " (আগে ৳" + bnn(p.was) + ", ছাড় চলছে)"; if (p.price == null) s = p.name + " — দাম জানতে মেসেজ দিন"; if (p.stock === false) s += " (এখন স্টকে নেই)"; return s; }
       function findProducts(q) {
         return PRODUCTS.filter(function (p) {
           var text = (p.name + " " + p.cat + " " + p.desc).toLowerCase();

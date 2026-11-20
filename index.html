@@ -245,10 +245,10 @@
       .prod h3 { margin: 0; font-size: 1.05rem; line-height: 1.4; }
       .prod .cat-label { color: var(--muted); font-size: 0.85rem; margin: 0; }
       .prod .price { font-weight: 700; color: var(--brand-strong); font-size: 1.12rem; margin: 0.25rem 0 0.45rem; }
-      .prod .price.ask { color: var(--accent); font-size: 0.98rem; }
+      .price.ask { color: var(--accent); font-size: 0.98rem; }
       .prod { position: relative; }
-      .prod .price .was { text-decoration: line-through; color: var(--muted); font-weight: 400; font-size: 0.95rem; }
-      .prod .price .off { background: #dc2626; color: #fff; font-size: 0.8rem; font-weight: 700; padding: 0.12rem 0.5rem; border-radius: 999px; margin-left: 0.4rem; vertical-align: middle; }
+      .price .was { text-decoration: line-through; color: var(--muted); font-weight: 400; font-size: 0.95rem; }
+      .price .off { background: #dc2626; color: #fff; font-size: 0.8rem; font-weight: 700; padding: 0.12rem 0.5rem; border-radius: 999px; margin-left: 0.4rem; vertical-align: middle; }
       .disc-badge { position: absolute; top: 0; right: 0; width: 76px; height: 76px; z-index: 2; pointer-events: none; }
       .disc-badge::before { content: ""; position: absolute; inset: 0; background: #e4022b; clip-path: polygon(0 0, 100% 0, 100% 100%); }
       .disc-badge b { position: absolute; top: 17px; right: 5px; transform: rotate(45deg); color: #fff; font-size: 0.98rem; font-weight: 800; }
@@ -277,6 +277,21 @@
       .shop-tools input { flex: 1 1 190px; padding: 0.6rem 0.8rem; border: 1.5px solid var(--line); border-radius: 10px; font-size: 0.98rem; background: var(--surface); color: inherit; font: inherit; }
       .shop-tools select { padding: 0.6rem 0.6rem; border: 1.5px solid var(--line); border-radius: 10px; font-size: 0.95rem; background: var(--surface); color: inherit; font: inherit; }
       .cart-row { display: flex; justify-content: space-between; margin-top: 0.55rem; color: var(--muted); font-size: 0.97rem; }
+      .pay-strip { text-align: center; font-weight: 600; color: var(--muted); margin: 0 0 1rem; font-size: 0.97rem; }
+      .cart-pay { text-align: center; color: var(--muted); font-size: 0.93rem; margin: 0.7rem 0 0; }
+      .prod img, .prod h3 { cursor: pointer; }
+      .prod-panel { position: fixed; inset: 0; z-index: 40; background: rgba(0,0,0,.5); display: none; }
+      .prod-panel.open { display: block; }
+      .prod-box { position: absolute; left: 0; right: 0; bottom: 0; max-height: 88vh; overflow: auto; background: var(--surface); border-radius: 18px 18px 0 0; padding: 1rem 1.1rem 1.2rem; }
+      .prod-box .big-img { width: 100%; border-radius: 12px; aspect-ratio: 4 / 3; object-fit: cover; }
+      .prod-box h3 { margin: 0.7rem 0 0.2rem; font-size: 1.25rem; }
+      .prod-box .price { font-weight: 700; color: var(--brand-strong); font-size: 1.15rem; margin: 0.25rem 0 0.45rem; }
+      .rel-h { margin: 1.1rem 0 0.2rem; font-size: 1.05rem; }
+      .rel-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 0.7rem; margin-top: 0.6rem; }
+      .rel-card { border: 1px solid var(--line); border-radius: 12px; overflow: hidden; cursor: pointer; background: var(--surface); }
+      .rel-card img { width: 100%; aspect-ratio: 4 / 3; object-fit: cover; }
+      .rel-card .rn { padding: 0.4rem 0.6rem 0; font-size: 0.92rem; font-weight: 600; }
+      .rel-card .rp { padding: 0 0.6rem 0.55rem; color: var(--brand-strong); font-weight: 700; }
 </style>
   </head>
   <body>
@@ -353,6 +368,7 @@
         <p class="sec-sub">পছন্দের পণ্যে "অর্ডার করো" বাটনে চাপ দিলেই WhatsApp-এ সরাসরি অর্ডার পাঠাতে পারবেন। নতুন পণ্য নিয়মিত যোগ হচ্ছে — স্টক জানতে মেসেজ দিন।</p>
         <div class="offer-strip">🔥 অফার চলছে! সব খেলার সামগ্রীতে ১০% থেকে ২০% পর্যন্ত ছাড় — কার্ডে ছাড়ের দামই দেওয়া আছে</div>
         <div class="delivery-strip">🚚 সারা দেশে হোম ডেলিভারি — ডেলিভারি চার্জ মাত্র ৳১৪০</div>
+        <div class="pay-strip">💳 পেমেন্ট: ক্যাশ অন ডেলিভারি, বিকাশ ও নগদ</div>
         <div class="shop-tools">
           <input id="shop-search" type="search" placeholder="🔍 পণ্য খুঁজো — র‍্যাকেট, জার্সি, বল...">
           <select id="shop-sort">
@@ -365,7 +381,15 @@
         <div class="chips" id="shop-chips"></div>
         <div class="shop-grid" id="shop-grid"></div>
       </section>
-      <button class="cart-fab" id="cart-fab" type="button">🛒 কার্ট<span class="cnt" id="cart-cnt">০</span></button>
+      <div class="prod-panel" id="prod-panel">
+      <div class="prod-box">
+        <div id="prod-detail"></div>
+        <h4 class="rel-h">একই ধরনের আরও পণ্য</h4>
+        <div class="rel-grid" id="prod-related"></div>
+        <button class="cart-close" id="prod-close" type="button">বন্ধ করো</button>
+      </div>
+    </div>
+    <button class="cart-fab" id="cart-fab" type="button">🛒 কার্ট<span class="cnt" id="cart-cnt">০</span></button>
     <div class="cart-panel" id="cart-panel">
       <div class="cart-box">
         <h3>🛒 তোমার কার্ট</h3>
@@ -374,6 +398,7 @@
         <div class="cart-row"><span>ডেলিভারি চার্জ (সারা দেশে)</span><span id="cart-del">৳ ০</span></div>
         <div class="cart-total"><span>সর্বমোট</span><span id="cart-total">৳ ০</span></div>
         <a class="cart-send" id="cart-send" href="#" target="_blank" rel="noopener">WhatsApp-এ অর্ডার পাঠাও</a>
+        <p class="cart-pay">💳 পেমেন্ট: ক্যাশ অন ডেলিভারি, বিকাশ ও নগদ</p>
         <button class="cart-close" id="cart-close" type="button">বন্ধ করো</button>
       </div>
     </div>
@@ -402,6 +427,8 @@
         { name: "Kamranga Black & Golden ব্যাডমিন্টন র‍্যাকেট", cat: "ব্যাডমিন্টন", price: 1000, was: 1150, img: "kamranga_black", desc: "কামরাঙ্গা ব্যাডমিন্টন র‍্যাকেট — রঙ: কালো ও সোনালি। সর্বোচ্চ 28 LBS পর্যন্ত স্ট্রিং টেনশন সাপোর্ট • স্ট্রিং বাঁধাইসহ সম্পূর্ণ রেডি • সাথে কাপড়ের র‍্যাকেট কভার" },
         { name: "TITAN SEVEN ব্যাডমিন্টন র‍্যাকেট (2026)", cat: "ব্যাডমিন্টন", price: 2500, was: 3125, img: "titan", desc: "2026-এর নতুন মডেল, 100% অরিজিনাল। ওজন: মাত্র 82 গ্রাম • সর্বোচ্চ স্ট্রিং টেনশন: 35 LBS • রঙ: সাদা, সবুজ ও সোনালি অ্যাকসেন্ট • সাথে র‍্যাকেট কভার ও অতিরিক্ত গ্রিপ, স্ট্রিং বাঁধাইসহ রেডি" },
         { name: "Kawasaki Passion P26 ব্যাডমিন্টন র‍্যাকেট", cat: "ব্যাডমিন্টন", price: 4000, was: 4440, img: "kawasaki", desc: "100% অরিজিনাল র‍্যাকেট। ফ্রেম ও শ্যাফট: 24T High Modulus Graphite • ওজন: 82 গ্রাম (4U) • গ্রিপ: G6 • ব্যালেন্স: 293mm • টেনশন: 18–28 lbs • রঙ: Pink & Purple / White & Blue • সাথে র‍্যাকেট কভার ব্যাগ" },
+        { name: "Yonex Mavis 10 শাটল কক (Original)", cat: "ব্যাডমিন্টন", price: null, img: "badminton", desc: "Yonex-এর অরিজিনাল নাইলন শাটল কক — টেকসই, প্র্যাকটিস ও খেলার জন্য উপযোগী।" },
+        { name: "G10 শাটল কক (Original)", cat: "ব্যাডমিন্টন", price: null, img: "badminton", desc: "অরিজিনাল ফেদার (পালক) শাটল কক — ম্যাচ খেলার জন্য জনপ্রিয়।" },
         { name: "স্পোর্টস অ্যাক্সেসরিজ", cat: "অ্যাক্সেসরিজ", price: 300, was: 345, img: "accessories" },
         { name: "ক্রিকেট ব্যাট", cat: "ক্রিকেট", price: 1250, was: 1390, img: "cricket" },
         { name: "ক্রিকেট বল", cat: "ক্রিকেট", price: 350, was: 440, img: "cricket" },
@@ -464,6 +491,8 @@
             cartBtn.textContent = "✓ কার্টে যোগ হয়েছে"; cartBtn.classList.add("added");
             setTimeout(function () { cartBtn.textContent = "🛒 কার্টে যোগ করো"; cartBtn.classList.remove("added"); }, 1200);
           });
+          card.querySelector("img").addEventListener("click", function () { openProduct(p); });
+          card.querySelector("h3").addEventListener("click", function () { openProduct(p); });
           grid.appendChild(card);
         });
       }
@@ -503,6 +532,43 @@
         lines.push("— ইফফাত প্রিন্টস এন্ড খেলাঘর ওয়েবসাইট থেকে");
         document.getElementById("cart-send").href = "https://wa.me/" + WA_NUMBER + "?text=" + encodeURIComponent(lines.join("\n"));
       }
+      function priceHTML(p) {
+        if (!p.price) return '<span class="ask">দাম জানতে মেসেজ দিন</span>';
+        if (p.was) { var off = Math.round((1 - p.price / p.was) * 100); return '<span class="was">৳ ' + bnNum(p.was) + '</span> ৳ ' + bnNum(p.price) + '<span class="off">−' + bnNum(off) + '% ছাড়</span>'; }
+        return '৳ ' + bnNum(p.price);
+      }
+      function openProduct(p) {
+        var d = document.getElementById("prod-detail");
+        var msg = "আসসালামু আলাইকুম, আমি \"" + p.name + "\" পণ্যটি কিনতে চাই।" + (!p.price ? " দামটা জানাবেন?" : " দাম: ৳" + bnNum(p.price) + (p.was ? " (অফার প্রাইস, নিয়মিত দাম ৳" + bnNum(p.was) + ")" : "")) + " — ইফফাত প্রিন্টস এন্ড খেলাঘর ওয়েবসাইট থেকে";
+        d.innerHTML = '<img class="big-img" alt=""><h3></h3><p class="cat-label"></p><p class="price"></p><p class="desc"></p>' +
+          '<a class="btn-order" target="_blank" rel="noopener">WhatsApp-এ অর্ডার করো</a>' +
+          '<button class="btn-cart" type="button">🛒 কার্টে যোগ করো</button>';
+        d.querySelector("img").src = CATIMG[p.img] || "";
+        d.querySelector("img").alt = p.name;
+        d.querySelector("h3").textContent = p.name;
+        d.querySelector(".cat-label").textContent = p.cat;
+        d.querySelector(".price").innerHTML = priceHTML(p);
+        d.querySelector(".desc").textContent = p.desc || "";
+        d.querySelector(".btn-order").href = "https://wa.me/" + WA_NUMBER + "?text=" + encodeURIComponent(msg);
+        var cb = d.querySelector(".btn-cart");
+        if (!p.price) { cb.style.display = "none"; }
+        cb.addEventListener("click", function () { CART[p.name] = (CART[p.name] || 0) + 1; saveCart(); cb.textContent = "✓ কার্টে যোগ হয়েছে"; cb.classList.add("added"); setTimeout(function () { cb.textContent = "🛒 কার্টে যোগ করো"; cb.classList.remove("added"); }, 1200); });
+        var rel = document.getElementById("prod-related");
+        rel.innerHTML = "";
+        PRODUCTS.filter(function (x) { return x.cat === p.cat && x.name !== p.name; }).slice(0, 4).forEach(function (x) {
+          var rc = document.createElement("div"); rc.className = "rel-card";
+          rc.innerHTML = '<img alt=""><div class="rn"></div><div class="rp"></div>';
+          rc.querySelector("img").src = CATIMG[x.img] || "";
+          rc.querySelector("img").alt = x.name;
+          rc.querySelector(".rn").textContent = x.name;
+          rc.querySelector(".rp").textContent = x.price ? "৳ " + bnNum(x.price) : "দাম জানতে মেসেজ দিন";
+          rc.addEventListener("click", function () { openProduct(x); document.querySelector(".prod-box").scrollTop = 0; });
+          rel.appendChild(rc);
+        });
+        document.getElementById("prod-panel").classList.add("open");
+      }
+      document.getElementById("prod-close").addEventListener("click", function () { document.getElementById("prod-panel").classList.remove("open"); });
+      document.getElementById("prod-panel").addEventListener("click", function (e) { if (e.target === this) this.classList.remove("open"); });
       document.getElementById("cart-fab").addEventListener("click", function () { document.getElementById("cart-panel").classList.add("open"); });
       document.getElementById("cart-close").addEventListener("click", function () { document.getElementById("cart-panel").classList.remove("open"); });
       document.getElementById("cart-panel").addEventListener("click", function (e) { if (e.target === this) this.classList.remove("open"); });
